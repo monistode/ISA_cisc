@@ -1,0 +1,19 @@
+
+State Machine - |DE10_NANO_SoC_GHRD|cur_cpu_state
+Name cur_cpu_state.CPU_STATE_INSTR_WRITEBACK_1 cur_cpu_state.CPU_STATE_INSTR_WRITEBACK cur_cpu_state.CPU_STATE_INSTR_EXEC_1 cur_cpu_state.CPU_STATE_INSTR_EXEC cur_cpu_state.CPU_STATE_INSTR_OPERAND_FETCH_1 cur_cpu_state.CPU_STATE_INSTR_OPERAND_FETCH cur_cpu_state.CPU_STATE_INSTR_IMM_FETCH_1 cur_cpu_state.CPU_STATE_INSTR_IMM_FETCH cur_cpu_state.CPU_STATE_INSTR_DECODE cur_cpu_state.CPU_STATE_INSTR_FETCH 
+cur_cpu_state.CPU_STATE_INSTR_FETCH 0 0 0 0 0 0 0 0 0 0 
+cur_cpu_state.CPU_STATE_INSTR_DECODE 0 0 0 0 0 0 0 0 1 1 
+cur_cpu_state.CPU_STATE_INSTR_IMM_FETCH 0 0 0 0 0 0 0 1 0 1 
+cur_cpu_state.CPU_STATE_INSTR_IMM_FETCH_1 0 0 0 0 0 0 1 0 0 1 
+cur_cpu_state.CPU_STATE_INSTR_OPERAND_FETCH 0 0 0 0 0 1 0 0 0 1 
+cur_cpu_state.CPU_STATE_INSTR_OPERAND_FETCH_1 0 0 0 0 1 0 0 0 0 1 
+cur_cpu_state.CPU_STATE_INSTR_EXEC 0 0 0 1 0 0 0 0 0 1 
+cur_cpu_state.CPU_STATE_INSTR_EXEC_1 0 0 1 0 0 0 0 0 0 1 
+cur_cpu_state.CPU_STATE_INSTR_WRITEBACK 0 1 0 0 0 0 0 0 0 1 
+cur_cpu_state.CPU_STATE_INSTR_WRITEBACK_1 1 0 0 0 0 0 0 0 0 1 
+
+State Machine - |DE10_NANO_SoC_GHRD|cur_mem_state
+Name cur_mem_state.MEM_STATE_WRITE_PENDING cur_mem_state.MEM_STATE_INIT cur_mem_state.MEM_STATE_READ_PENDING 
+cur_mem_state.MEM_STATE_INIT 0 0 0 
+cur_mem_state.MEM_STATE_READ_PENDING 0 1 1 
+cur_mem_state.MEM_STATE_WRITE_PENDING 1 1 0 
