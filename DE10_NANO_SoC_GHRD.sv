@@ -308,7 +308,7 @@ cur_mem_state <= next_mem_state;
 if (~debounced_keys[0]) is_halted <= 0;
 if (~debounced_keys[0] & SW[1]) begin
     SP <= MEM_STACK_BASE;
-    PC <= 0;
+    PC <= '0;
 end
 
 prev_pressed <= debounced_keys[1];
@@ -415,49 +415,49 @@ cycle_done <= cur_cpu_state == CPU_STATE_INSTR_WRITEBACK_1;
     end else if (cur_cpu_state == CPU_STATE_INSTR_DECODE) begin
         if (|cur_instruction == 0) begin
             IMM_ADDR <= PC;
-            PC <= PC + 1;
+            PC <= PC + '1;
             fetch_immediate <= 0;
         end
         else if (cur_instruction == 8'b00001011) begin
-            IMM_ADDR <= PC + 3;
-            PC <= PC + 4;
+            IMM_ADDR <= PC + 16'd3;
+            PC <= PC + 16'd4;
             fetch_immediate <= 1;
         end else begin
             case (cur_instruction[7:5])
                 3'b000: begin
-                    pc <= pc + 2;
+                    PC <= PC + 16'd2;
                     fetch_immediate <= 0;
                 end
 
                 3'b100: begin
-                    PC <= PC + 4;
+                    PC <= PC + 16'd4;
                     IMM_ADDR <= PC + 2;
                     fetch_immediate <= 1;
                 end
 
                 3'b011: begin
-                    PC <= PC + 2;
+                    PC <= PC + 16'd2;
                     fetch_immediate <= 0;
                 end
 
                 3'b101: begin
-                    PC <= PC + 2;
+                    PC <= PC + 16'd2;
                     fetch_immediate <= 0;
                 end
 
                 3'b110: begin
-                    PC <= PC + 4;
-                    IMM_ADDR <= PC + 2;
+                    PC <= PC + 16'd4;
+                    IMM_ADDR <= PC + 16'd2;
                     fetch_immediate <= 1;
                 end
 
                 3'b010: begin
-                    PC <= PC + 3;
+                    PC <= PC + 16'd3;
                     fetch_immediate <= 1;
                 end
 
                 3'b001: begin
-                    PC <= PC + 1;
+                    PC <= PC + 16'd1;
                     fetch_immediate <= 0;
                 end
 

@@ -1,5 +1,5 @@
 Flow report for DE10_NANO_SoC_GHRD
-Sun Nov 26 10:24:11 2023
+Sun Nov 26 10:25:37 2023
 Quartus Prime Version 22.1std.2 Build 922 07/20/2023 SC Lite Edition
 
 
@@ -38,24 +38,29 @@ https://fpgasoftware.intel.com/eula.
 
 
 
-+------------------------------------------------------------------------------+
-; Flow Summary                                                                 ;
-+-----------------------------+------------------------------------------------+
-; Flow Status                 ; Flow Failed - Sun Nov 26 10:24:11 2023         ;
-; Quartus Prime Version       ; 22.1std.2 Build 922 07/20/2023 SC Lite Edition ;
-; Revision Name               ; DE10_NANO_SoC_GHRD                             ;
-; Top-level Entity Name       ; DE10_NANO_SoC_GHRD                             ;
-; Family                      ; Cyclone V                                      ;
-; Device                      ; 5CSEBA6U23I7                                   ;
-; Timing Models               ; Final                                          ;
-; Logic utilization (in ALMs) ; N/A until Partition Merge                      ;
-; Total registers             ; N/A until Partition Merge                      ;
-; Total pins                  ; N/A until Partition Merge                      ;
-; Total virtual pins          ; N/A until Partition Merge                      ;
-; Total block memory bits     ; N/A until Partition Merge                      ;
-; Total PLLs                  ; N/A until Partition Merge                      ;
-; Total DLLs                  ; N/A until Partition Merge                      ;
-+-----------------------------+------------------------------------------------+
++----------------------------------------------------------------------------------+
+; Flow Summary                                                                     ;
++---------------------------------+------------------------------------------------+
+; Flow Status                     ; Successful - Sun Nov 26 10:25:37 2023          ;
+; Quartus Prime Version           ; 22.1std.2 Build 922 07/20/2023 SC Lite Edition ;
+; Revision Name                   ; DE10_NANO_SoC_GHRD                             ;
+; Top-level Entity Name           ; DE10_NANO_SoC_GHRD                             ;
+; Family                          ; Cyclone V                                      ;
+; Device                          ; 5CSEBA6U23I7                                   ;
+; Timing Models                   ; Final                                          ;
+; Logic utilization (in ALMs)     ; N/A until Partition Merge                      ;
+; Total registers                 ; N/A until Partition Merge                      ;
+; Total pins                      ; N/A until Partition Merge                      ;
+; Total virtual pins              ; N/A until Partition Merge                      ;
+; Total block memory bits         ; N/A until Partition Merge                      ;
+; Total DSP Blocks                ; N/A until Partition Merge                      ;
+; Total HSSI RX PCSs              ; N/A until Partition Merge                      ;
+; Total HSSI PMA RX Deserializers ; N/A until Partition Merge                      ;
+; Total HSSI TX PCSs              ; N/A until Partition Merge                      ;
+; Total HSSI PMA TX Serializers   ; N/A until Partition Merge                      ;
+; Total PLLs                      ; N/A until Partition Merge                      ;
+; Total DLLs                      ; N/A until Partition Merge                      ;
++---------------------------------+------------------------------------------------+
 
 
 +-----------------------------------------+
@@ -63,7 +68,7 @@ https://fpgasoftware.intel.com/eula.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 11/26/2023 10:24:03 ;
+; Start date & time ; 11/26/2023 10:25:25 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; DE10_NANO_SoC_GHRD  ;
 +-------------------+---------------------+
@@ -74,7 +79,7 @@ https://fpgasoftware.intel.com/eula.
 +---------------------------------------+--------------------------------------------------------------------------+---------------+--------------------------------+----------------+
 ; Assignment Name                       ; Value                                                                    ; Default Value ; Entity Name                    ; Section Id     ;
 +---------------------------------------+--------------------------------------------------------------------------+---------------+--------------------------------+----------------+
-; COMPILER_SIGNATURE_ID                 ; 123584815071519.170098704125185                                          ; --            ; --                             ; --             ;
+; COMPILER_SIGNATURE_ID                 ; 123584815071519.170098712326918                                          ; --            ; --                             ; --             ;
 ; ECO_REGENERATE_REPORT                 ; On                                                                       ; Off           ; --                             ; --             ;
 ; EDA_OUTPUT_DATA_FORMAT                ; None                                                                     ; --            ; --                             ; eda_simulation ;
 ; HPS_ISW_FILE                          ; soc_system/synthesis/submodules/sequencer/alt_types.pre.h                ; --            ; soc_system_hps_0_hps_io_border ; --             ;
@@ -129,8 +134,8 @@ https://fpgasoftware.intel.com/eula.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:00:13     ; 1.0                     ; 458 MB              ; 00:00:25                           ;
-; Total                ; 00:00:13     ; --                      ; --                  ; 00:00:25                           ;
+; Analysis & Synthesis ; 00:00:17     ; 1.0                     ; 670 MB              ; 00:00:29                           ;
+; Total                ; 00:00:17     ; --                      ; --                  ; 00:00:29                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
