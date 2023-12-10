@@ -1153,7 +1153,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -1163,7 +1162,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -1217,7 +1216,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -1227,7 +1225,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -1310,7 +1308,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -1320,7 +1317,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -1395,7 +1392,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -1538,7 +1534,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -1548,7 +1543,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -1602,7 +1597,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -1612,7 +1606,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -1695,7 +1689,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -1705,7 +1698,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -1780,7 +1773,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -1841,7 +1833,7 @@ if (
                             (tmp_word[15] & ~snd_imm[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_word[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
 
@@ -1851,7 +1843,8 @@ if (
             end
 
             // INC %REG
-            8'b00000011: begin
+            8'b00011111: begin
+                case (cur_cpu_state)
                     CPU_STATE_INSTR_IMM_FETCH: begin
                         instr_reg_1 <= cur_instruction[10:8];
                         instr_reg_2 <= cur_instruction[13:11];
@@ -1883,7 +1876,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -1892,6 +1884,9 @@ if (
                         FR[2] <= tmp_word[15];
                         FR[3] <= |tmp_word;
                     end
+                    default: begin
+                    end
+                endcase
             end
 
             // INC [%REG1]
@@ -1993,7 +1988,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -2058,7 +2052,6 @@ if (
 
                     CPU_STATE_INSTR_EXEC_1: begin
                         tmp_word <= cur_imm + 16'd1;
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK: begin
@@ -2155,7 +2148,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -2213,7 +2205,6 @@ if (
 
                     CPU_STATE_INSTR_OPERAND_FETCH: begin
                         tmp_word <= cur_imm - 16'd1;
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -2329,7 +2320,6 @@ if (
 
                     CPU_STATE_INSTR_EXEC_1: begin
                         tmp_word <= cur_imm - 16'd1;
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK: begin
@@ -2464,7 +2454,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -2474,7 +2463,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address;
                     end
 
                     default: begin
@@ -2526,7 +2515,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -2536,7 +2524,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address;
                     end
 
                     default: begin
@@ -2580,7 +2568,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -2590,7 +2577,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address;
                     end
 
                     default: begin
@@ -2672,7 +2659,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -2682,7 +2668,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address;
                     end
 
                     default: begin
@@ -2757,7 +2743,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -2917,7 +2902,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -2927,7 +2911,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -2999,7 +2983,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -3009,7 +2992,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address;
                     end
 
                     default: begin
@@ -3104,7 +3087,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -3227,7 +3209,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -3237,7 +3218,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address;
                     end
 
                     default: begin
@@ -3338,7 +3319,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -3348,7 +3328,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address;
                     end
 
                     default: begin
@@ -3429,13 +3409,12 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
                         FR[0] <= tmp_address < tmp_word;
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -3489,13 +3468,12 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
                         FR[0] <= tmp_address < tmp_word;
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -3576,13 +3554,12 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
                         FR[0] <= tmp_address < tmp_word;
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -3636,13 +3613,12 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
                         FR[0] <= tmp_address < tmp_word;
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -3723,13 +3699,12 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
                         FR[0] <= tmp_address < tmp_word;
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -3783,13 +3758,12 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
                         FR[0] <= tmp_address < tmp_word;
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -3835,7 +3809,7 @@ if (
                     CPU_STATE_INSTR_EXEC: begin
                         FR[0] <= tmp_address < tmp_word;
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -3909,7 +3883,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -3983,7 +3956,6 @@ if (
                         instr_reg_1 <= cur_instruction[10:8];
                         cur_imm <= cur_instruction[31:16];
                         PC <= PC + 16'd4;
-                        FR <= 0;
                     end
 
                     CPU_STATE_INSTR_IMM_FETCH_1: begin
@@ -4021,7 +3993,7 @@ if (
                         FR[0] <= tmp_word[15];
                         FR[1] <= tmp_word[15] ^ tmp_address[15];
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -4091,7 +4063,6 @@ if (
 
                     CPU_STATE_INSTR_OPERAND_FETCH: begin
                         tmp_word <= cur_imm << snd_imm;
-                        FR <= 0;
                     end
 
                     CPU_STATE_INSTR_OPERAND_FETCH_1: begin
@@ -4212,7 +4183,6 @@ if (
 
                     CPU_STATE_INSTR_OPERAND_FETCH: begin
                         tmp_word <= cur_imm << snd_imm;
-                        FR <= 0;
                     end
 
                     CPU_STATE_INSTR_OPERAND_FETCH_1: begin
@@ -4281,7 +4251,6 @@ if (
                         instr_reg_1 <= cur_instruction[10:8];
                         cur_imm <= cur_instruction[31:16];
                         PC <= PC + 16'd4;
-                        FR <= 0;
                     end
 
                     CPU_STATE_INSTR_IMM_FETCH_1: begin
@@ -4319,7 +4288,7 @@ if (
                         FR[0] <= tmp_word[15];
                         FR[1] <= tmp_word[15] ^ tmp_address[15];
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -4389,7 +4358,6 @@ if (
 
                     CPU_STATE_INSTR_OPERAND_FETCH: begin
                         tmp_word <= cur_imm >> snd_imm;
-                        FR <= 0;
                     end
 
                     CPU_STATE_INSTR_OPERAND_FETCH_1: begin
@@ -4510,7 +4478,6 @@ if (
 
                     CPU_STATE_INSTR_OPERAND_FETCH: begin
                         tmp_word <= cur_imm >> snd_imm;
-                        FR <= 0;
                     end
 
                     CPU_STATE_INSTR_OPERAND_FETCH_1: begin
@@ -4756,7 +4723,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -4766,7 +4732,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -4816,7 +4782,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_EXEC: begin
@@ -4826,7 +4791,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -4904,7 +4869,6 @@ if (
                             default: begin
                             end
                         endcase
-                        FR <= 16'd0;
                     end
 
                     CPU_STATE_INSTR_WRITEBACK_1: begin
@@ -4914,7 +4878,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -4964,7 +4928,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= (|tmp_word) & (|cur_imm);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -5051,7 +5015,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -5111,7 +5075,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -5199,7 +5163,7 @@ if (
                             (tmp_address[15] & ~tmp_word[15] & ~cur_imm[15])
                         );
                         FR[2] <= tmp_address[15];
-                        FR[3] <= ~(|tmp_address);
+                        FR[3] <= tmp_address == 0;
                     end
 
                     default: begin
@@ -5256,7 +5220,6 @@ if (
                             default: begin
                             end
                         endcase
-                        SP <= SP - 16'd2;
                     end
 
                     CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
@@ -5273,6 +5236,7 @@ if (
                 case (cur_cpu_state)
                     CPU_STATE_INSTR_IMM_FETCH: begin
                         if (FR[3]) PC <= cur_instruction[23:8];
+                        else PC <= PC;
                     end
 
                     default: begin
@@ -5285,6 +5249,7 @@ if (
                 case (cur_cpu_state)
                     CPU_STATE_INSTR_IMM_FETCH: begin
                         if (~FR[3]) PC <= cur_instruction[23:8];
+                        else PC <= PC;
                     end
 
                     default: begin
@@ -5297,6 +5262,7 @@ if (
                 case (cur_cpu_state)
                     CPU_STATE_INSTR_IMM_FETCH: begin
                         if (~FR[3] & ~FR[1]) PC <= cur_instruction[23:8];
+                        else PC <= PC;
                     end
 
                     default: begin
@@ -5309,6 +5275,7 @@ if (
                 case (cur_cpu_state)
                     CPU_STATE_INSTR_IMM_FETCH: begin
                         if (~FR[0]) PC <= cur_instruction[23:8];
+                        else PC <= PC;
                     end
 
                     default: begin
@@ -5321,6 +5288,7 @@ if (
                 case (cur_cpu_state)
                     CPU_STATE_INSTR_IMM_FETCH: begin
                         if (FR[1] != FR[2]) PC <= cur_instruction[23:8];
+                        else PC <= PC;
                     end
 
                     default: begin
@@ -5333,6 +5301,7 @@ if (
                 case (cur_cpu_state)
                     CPU_STATE_INSTR_IMM_FETCH: begin
                         if (FR[0] | FR[3]) PC <= cur_instruction[23:8];
+                        else PC <= PC;
                     end
 
                     default: begin
