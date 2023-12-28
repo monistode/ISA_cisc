@@ -435,6 +435,7 @@ if (
         case (cur_instruction[7:0]) 
             // That's a NOP )
             default: begin
+                if (cur_cpu_state == CPU_STATE_INSTR_WRITEBACK) PC <= PC + 1;
             end
 
             // HALT
