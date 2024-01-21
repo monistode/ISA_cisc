@@ -183,14 +183,14 @@ end
 enum int unsigned {
     CPU_STATE_INSTR_FETCH              = 1,
     CPU_STATE_INSTR_FETCH_1            = 2,
-    CPU_STATE_INSTR_DECODE             = 3,
-    CPU_STATE_INSTR_DECODE_1           = 4,
+    CPU_STATE_INSTR_FETCH_2             = 3,
+    CPU_STATE_INSTR_FETCH_3           = 4,
     CPU_STATE_INSTR_IMM_FETCH          = 5,
     CPU_STATE_INSTR_IMM_FETCH_1        = 6,
-    CPU_STATE_INSTR_SECOND_IMM_FETCH   = 7,
-    CPU_STATE_INSTR_SECOND_IMM_FETCH_1 = 8,
-    CPU_STATE_INSTR_OPERAND_FETCH      = 9,
-    CPU_STATE_INSTR_OPERAND_FETCH_1    = 10,
+    CPU_STATE_INSTR_SECOND_IMM_SETUP   = 7,
+    CPU_STATE_INSTR_SECOND_IMM_SETUP_1 = 8,
+    CPU_STATE_INSTR_OPERAND_SETUP      = 9,
+    CPU_STATE_INSTR_OPERAND_SETUP_1    = 10,
     CPU_STATE_INSTR_EXEC               = 11,
     CPU_STATE_INSTR_EXEC_1             = 12,
     CPU_STATE_INSTR_WRITEBACK          = 13,
@@ -343,14 +343,14 @@ if (
         end
 
         CPU_STATE_INSTR_FETCH_1: begin
-            cur_cpu_state <= CPU_STATE_INSTR_DECODE;
+            cur_cpu_state <= CPU_STATE_INSTR_FETCH_2;
         end
 
-        CPU_STATE_INSTR_DECODE: begin
-            cur_cpu_state <= CPU_STATE_INSTR_DECODE_1;
+        CPU_STATE_INSTR_FETCH_2: begin
+            cur_cpu_state <= CPU_STATE_INSTR_FETCH_3;
         end
 
-        CPU_STATE_INSTR_DECODE_1: begin
+        CPU_STATE_INSTR_FETCH_3: begin
             cur_cpu_state <= CPU_STATE_INSTR_IMM_FETCH;
         end
 
@@ -359,22 +359,22 @@ if (
         end
 
         CPU_STATE_INSTR_IMM_FETCH_1: begin
-            cur_cpu_state <= CPU_STATE_INSTR_SECOND_IMM_FETCH;
+            cur_cpu_state <= CPU_STATE_INSTR_SECOND_IMM_SETUP;
         end
 
-        CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
-            cur_cpu_state <= CPU_STATE_INSTR_SECOND_IMM_FETCH_1;
+        CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
+            cur_cpu_state <= CPU_STATE_INSTR_SECOND_IMM_SETUP_1;
         end
 
-        CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
-            cur_cpu_state <= CPU_STATE_INSTR_OPERAND_FETCH;
+        CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
+            cur_cpu_state <= CPU_STATE_INSTR_OPERAND_SETUP;
         end
 
-        CPU_STATE_INSTR_OPERAND_FETCH: begin
-            cur_cpu_state <= CPU_STATE_INSTR_OPERAND_FETCH_1;
+        CPU_STATE_INSTR_OPERAND_SETUP: begin
+            cur_cpu_state <= CPU_STATE_INSTR_OPERAND_SETUP_1;
         end
 
-        CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+        CPU_STATE_INSTR_OPERAND_SETUP_1: begin
             cur_cpu_state <= CPU_STATE_INSTR_EXEC;
         end
 
@@ -415,7 +415,7 @@ if (
         byte_enable <= 4'b1111;
         address <= {PC[15:2], 2'b00} + 16'd4;
         read_req <= 1;
-    end else  if (cur_cpu_state == CPU_STATE_INSTR_DECODE) begin
+    end else  if (cur_cpu_state == CPU_STATE_INSTR_FETCH_2) begin
         case (PC[1:0])
             2'b00: cur_instruction[47:32] <= data[15:0];
             2'b01: cur_instruction[47:24] <= data[23:0];
@@ -429,7 +429,7 @@ if (
             default: begin
             end
         endcase
-    end else if (cur_cpu_state == CPU_STATE_INSTR_DECODE_1) begin
+    end else if (cur_cpu_state == CPU_STATE_INSTR_FETCH_3) begin
         if (PC[1:0] == 2'b11) cur_instruction[47:40] <= data[7:0];
     end else begin
         case (cur_instruction[7:0]) 
@@ -460,7 +460,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_1) 
                             3'b000: R00 <= cur_imm;
                             3'b001: R01 <= cur_imm;
@@ -503,7 +503,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: R00 <= tmp_word;
                             3'b001: R01 <= tmp_word;
@@ -569,7 +569,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -586,12 +586,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (instr_reg_1)
                             3'b000: R00 <= cur_imm;
                             3'b001: R01 <= cur_imm;
@@ -637,7 +637,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
@@ -721,7 +721,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
 
                         case (tmp_address[1:0])
@@ -751,7 +751,7 @@ if (
                         write_req <= 1;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b01: begin
                                 address <= {tmp_address[15:2], 2'b00};
@@ -786,7 +786,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         tmp_word <= cur_imm;
 
                         case (instr_reg_1) 
@@ -868,7 +868,7 @@ if (
                         PC <= PC + 16'd5;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (instr_reg_2)
                             3'b000: tmp_word <= {R00[7:0], R00[15:8]};
                             3'b001: tmp_word <= {R01[7:0], R01[15:8]};
@@ -960,7 +960,7 @@ if (
                         PC <= PC + 16'd6;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         tmp_word <= snd_imm;
 
                         case (instr_reg_1)
@@ -1034,7 +1034,7 @@ if (
             // PUSH %REG
             8'b00000001: begin
                 case (cur_cpu_state)
-                    CPU_STATE_INSTR_DECODE: begin
+                    CPU_STATE_INSTR_FETCH_2: begin
                         instr_reg_1 <= cur_instruction[10:8];
                         PC <= PC + 16'd2;
                         SP <= SP - 16'd2;
@@ -1099,13 +1099,13 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         if (SP[1]) cur_imm <= data[31:16];
                         else cur_imm <= data[15:0];
                         SP <= SP + 16'd2;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: R00 <= cur_imm;
                             3'b001: R01 <= cur_imm;
@@ -1144,13 +1144,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -1167,12 +1167,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 + cur_imm;
@@ -1235,7 +1235,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 + cur_imm;
@@ -1289,7 +1289,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: tmp_address <= R00 + cur_imm;
                             3'b001: tmp_address <= R01 + cur_imm;
@@ -1300,13 +1300,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -1395,7 +1395,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -1412,12 +1412,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: begin
                                 tmp_word <= R00 + cur_imm;
@@ -1528,13 +1528,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -1551,12 +1551,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 - cur_imm;
@@ -1619,7 +1619,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 - cur_imm;
@@ -1673,7 +1673,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: tmp_address <= R00 + cur_imm;
                             3'b001: tmp_address <= R01 + cur_imm;
@@ -1684,13 +1684,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -1779,7 +1779,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -1796,11 +1796,11 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[15:8] <= data[7:0];
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (instr_reg_2)
                             3'b000: begin
                                 tmp_word <= R00 - cur_imm;
@@ -1963,7 +1963,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -1980,12 +1980,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         tmp_word <= cur_imm + 16'd1;
                     end
 
@@ -2074,11 +2074,11 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         tmp_address <= tmp_address + snd_imm;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -2095,7 +2095,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
@@ -2233,7 +2233,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -2250,12 +2250,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         tmp_word <= cur_imm - 16'd1;
                     end
 
@@ -2344,11 +2344,11 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         tmp_address <= tmp_address + snd_imm;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -2365,7 +2365,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
@@ -2455,7 +2455,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -2472,12 +2472,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 * cur_imm;
@@ -2538,7 +2538,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 * cur_imm;
@@ -2644,7 +2644,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: tmp_address <= R00 + tmp_word;
                             3'b001: tmp_address <= R01 + tmp_word;
@@ -2655,13 +2655,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -2750,7 +2750,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -2767,12 +2767,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: begin
                                 tmp_word <= R00 * cur_imm;
@@ -2886,7 +2886,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -2903,12 +2903,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 if (cur_imm != 0) begin
@@ -2989,7 +2989,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 if (cur_imm != 0) begin
@@ -3076,7 +3076,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -3093,12 +3093,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (instr_reg_2)
                             3'b000: begin
                                 if (R00 != 0) begin
@@ -3289,7 +3289,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: tmp_address <= R00 + tmp_word;
                             3'b001: tmp_address <= R01 + tmp_word;
@@ -3300,13 +3300,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -3409,13 +3409,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -3432,12 +3432,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 & cur_imm;
@@ -3496,7 +3496,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 & cur_imm;
@@ -3555,13 +3555,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -3578,12 +3578,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 | cur_imm;
@@ -3642,7 +3642,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 | cur_imm;
@@ -3701,13 +3701,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -3724,12 +3724,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 ^ cur_imm;
@@ -3788,7 +3788,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 R00 <= R00 ^ cur_imm;
@@ -3896,7 +3896,7 @@ if (
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -3913,11 +3913,11 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[15:8] <= data[7:0];
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (instr_reg_2)
                             3'b000: begin
                                 tmp_word <= ~cur_imm;
@@ -4045,7 +4045,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         FR[0] <= tmp_word[15];
                         FR[1] <= tmp_word[15] ^ tmp_address[15];
                         FR[2] <= tmp_address[15];
@@ -4097,7 +4097,7 @@ if (
                         read_req <= 1;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -4113,15 +4113,15 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[15:8] <= data[7:0];
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         tmp_word <= cur_imm << snd_imm;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         FR[0] <= cur_imm[15];
                         FR[1] <= tmp_word[15] ^ cur_imm[15];
                         FR[2] <= tmp_word[15];
@@ -4217,7 +4217,7 @@ if (
                         read_req <= 1;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -4233,16 +4233,16 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         tmp_word <= cur_imm << snd_imm;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         FR[0] <= cur_imm[15];
                         FR[1] <= tmp_word[15] ^ cur_imm[15];
                         FR[2] <= tmp_word[15];
@@ -4341,7 +4341,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         FR[0] <= tmp_word[15];
                         FR[1] <= tmp_word[15] ^ tmp_address[15];
                         FR[2] <= tmp_address[15];
@@ -4393,7 +4393,7 @@ if (
                         read_req <= 1;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -4409,16 +4409,16 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         tmp_word <= cur_imm >> snd_imm;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         FR[0] <= cur_imm[15];
                         FR[1] <= tmp_word[15] ^ cur_imm[15];
                         FR[2] <= tmp_word[15];
@@ -4514,7 +4514,7 @@ if (
                         read_req <= 1;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -4530,16 +4530,16 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         tmp_word <= cur_imm >> snd_imm;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         FR[0] <= cur_imm[15];
                         FR[1] <= tmp_word[15] ^ cur_imm[15];
                         FR[2] <= tmp_word[15];
@@ -4614,7 +4614,7 @@ if (
                         write_data <= {2{PC}};
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         PC <= cur_imm;
                     end
 
@@ -4647,7 +4647,7 @@ if (
                         write_data <= {2{PC}};
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         PC <= cur_imm;
                     end
 
@@ -4680,7 +4680,7 @@ if (
                         write_data <= {2{PC}};
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         PC <= cur_imm;
                     end
 
@@ -4704,7 +4704,7 @@ if (
                         else cur_imm <= data[31:16];
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         PC <= cur_imm;
                     end
 
@@ -4733,13 +4733,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -4756,12 +4756,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 tmp_word <= R00;
@@ -4820,7 +4820,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 tmp_word <= R00;
@@ -4869,7 +4869,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: tmp_address <= R00 + cur_imm;
                             3'b001: tmp_address <= R01 + cur_imm;
@@ -4880,13 +4880,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -5017,13 +5017,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -5040,12 +5040,12 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         if (tmp_address[1:0] == 2'b11) cur_imm[7:0] <= data[7:0];
                         else cur_imm <= {cur_imm[7:0], cur_imm[15:8]};
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 tmp_word <= R00;
@@ -5105,7 +5105,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (instr_reg_1)
                             3'b000: begin
                                 tmp_word <= R00;
@@ -5155,7 +5155,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (instr_reg_2)
                             3'b000: tmp_address <= R00 + cur_imm;
                             3'b001: tmp_address <= R01 + cur_imm;
@@ -5166,13 +5166,13 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         address <= {tmp_address[15:2], 2'b00};
                         read_req <= 1;
                         byte_enable <= 4'b1111;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b00: cur_imm <= data[15:0];
                             2'b01: cur_imm <= data[23:8];
@@ -5261,7 +5261,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         PC <= cur_imm;
                     end
 
@@ -5285,7 +5285,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         PC <= cur_imm;
                     end
 
@@ -5375,14 +5375,14 @@ if (
             // IN %REG, $PORT
             8'b10001101: begin
                 case (cur_cpu_state)
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         instr_reg_1 <= cur_instruction[10:8];
                         cur_imm <= cur_instruction[31:16];
                         if (cur_instruction[31:16] == 0) uart_read_req <= 1;
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         case (instr_reg_1)
                             3'b000: R00 <= {8'b00, uart_data};
                             3'b001: R01 <= {8'b00, uart_data};
@@ -5401,7 +5401,7 @@ if (
             // IN [%REG], $PORT
             8'b10001110: begin
                 case (cur_cpu_state)
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (cur_instruction[10:8])
                             3'b000: tmp_address <= R00;
                             3'b001: tmp_address <= R01;
@@ -5415,7 +5415,7 @@ if (
                         PC <= PC + 16'd4;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         cur_imm <= {8'd0, uart_data};
                     end
 
@@ -5477,7 +5477,7 @@ if (
             // IN [%REG], $PORT
             8'b11000011: begin
                 case (cur_cpu_state)
-                    CPU_STATE_INSTR_OPERAND_FETCH: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP: begin
                         case (cur_instruction[10:8])
                             3'b000: tmp_address <= R00 + cur_instruction[47:32];
                             3'b001: tmp_address <= R01 + cur_instruction[47:32];
@@ -5491,7 +5491,7 @@ if (
                         PC <= PC + 16'd6;
                     end
 
-                    CPU_STATE_INSTR_OPERAND_FETCH_1: begin
+                    CPU_STATE_INSTR_OPERAND_SETUP_1: begin
                         cur_imm <= {8'd0, uart_data};
                     end
 
@@ -5741,7 +5741,7 @@ if (
 
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b01: begin
                                 write_data <= {R01[15:8], R02, R03[7:0]};
@@ -5768,7 +5768,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b01: begin
                                 write_data <= {4{R03[15:8]}};
@@ -5834,7 +5834,7 @@ if (
                         read_req <= '1;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (tmp_address[1:0])
                             2'b00: begin
                                 R02 <= data[15:0];
@@ -5875,7 +5875,7 @@ if (
                         endcase
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH_1: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP_1: begin
                         case (tmp_address[1:0])
                             2'b01: begin
                                 R03[15:8] <= data[7:0];
@@ -5982,7 +5982,7 @@ if (
                         SP <= BP - {cur_instruction[23:10], 2'b00};
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         FR[0] <= SP > BP;
                         FR[1] <= (
                             (~SP[15] & BP[15] & cur_instruction[23]) |
@@ -6011,7 +6011,7 @@ if (
                         read_req <= 1;
                     end
 
-                    CPU_STATE_INSTR_SECOND_IMM_FETCH: begin
+                    CPU_STATE_INSTR_SECOND_IMM_SETUP: begin
                         case (SP[1:0])
                             2'b00: BP <= {data[15:2], 2'b00};
                             2'b10: BP <= {data[31:18], 2'b00};
